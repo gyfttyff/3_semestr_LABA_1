@@ -1,30 +1,48 @@
+
 #include <iostream>
 #include <string>
 #include "storage.h"
 #include "query_processor.h"
 using namespace std;
 
-int main(int argc, char* argv[]) {
-    string filename = ""; string query = "";
+int main(int argc, char* argv[]) { //количество аргументов, массив аргументов
+    string filename = ""; 
+    string query = "";
+    
     for (int i = 1; i < argc; i++) {
-        if (string(argv[i]) == "--file" && i + 1 < argc) filename = argv[++i]; // если текущий аргумент "--file", то следующий за ним (argv[i+1]) — это имя файла. Сохраняем его в filename. ++i увеличивает счётчик, чтобы пропустить следующий элемент
+        if (string(argv[i]) == "--file" && i + 1 < argc) filename = argv[++i]; // если текущий элемент файл
         else if (string(argv[i]) == "--query" && i + 1 < argc) query = argv[++i];
     }
 
-    MyArray arr; array_init(arr); // cоздаём все структуры данных и инициализируем их
-    SinglyList flist; slist_init(flist);
-    DoublyList dlist; dlist_init(dlist);
+    MyArray arr; array_init(arr);
+    
+    SNode* flist_head; slist_init(flist_head);
+    
+    DNode* dlist_head; 
+    DNode* dlist_tail; 
+    dlist_init(dlist_head, dlist_tail);
+    
     MyStack stack; stack_init(stack);
-    MyQueue queue; queue_init(queue);
-    CBT tree; cbt_init(tree);
+    MyQueue que; queue_init(que);
+    
+    TNode* tree_root; cbt_init(tree_root);
 
-    if (!filename.empty()) storage_load(filename, arr);
+    // Загрузка из файла
+    if (!filename.empty()) {
+        storage_load(filename, arr, flist_head, dlist_head, dlist_tail, stack, que, tree_root);
+    }
 
+    // Выполнение команды
     if (!query.empty()) {
-        query_process(query, arr, flist, dlist, stack, queue, tree);
-        if (!filename.empty()) storage_save(filename, arr);
+        query_process(query, arr, flist_head, dlist_head, dlist_tail, stack, que, tree_root);
+        
+        // Сохранение в файл
+        if (!filename.empty()) {
+            storage_save(filename, arr, flist_head, dlist_head, stack, que, tree_root);
+        }
     } else {
         cout << "Usage: dbms.exe --file data.txt --query \"TINSERT mytree 5\"" << endl;
     }
+    
     return 0;
 }

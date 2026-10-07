@@ -2,16 +2,15 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <queue> 
+#include <queue>
 using namespace std;
-
 
 void storage_load(const string& filename, 
                   MyArray& arr, 
                   SNode* &flist_head, 
                   DNode* &dlist_head, DNode* &dlist_tail, 
                   MyStack& stack, 
-                  MyQueue& queue, 
+                  MyQueue& que, 
                   TNode* &tree_root) {
     
     ifstream in(filename);
@@ -21,36 +20,29 @@ void storage_load(const string& filename,
     }
 
     string line;
-    // СТРОКА ЗА СТРОКОЙ
     while (getline(in, line)) {
         int val;
         
-        // если строка начинается с "ARRAY:"
         if (line.substr(0, 6) == "ARRAY:") {
-            stringstream ss(line.substr(6)); // Берем всё, что после "ARRAY:"
+            stringstream ss(line.substr(6));
             while (ss >> val) array_push(arr, val);
         }
-        // если строка начинается с "SLIST:"
         else if (line.substr(0, 6) == "SLIST:") {
             stringstream ss(line.substr(6));
             while (ss >> val) slist_push_tail(flist_head, val);
         }
-        // если строка начинается с "DLIST:"
         else if (line.substr(0, 6) == "DLIST:") {
             stringstream ss(line.substr(6));
             while (ss >> val) dlist_push_tail(dlist_head, dlist_tail, val);
         }
-        // если строка начинается с "STACK:"
         else if (line.substr(0, 6) == "STACK:") {
             stringstream ss(line.substr(6));
             while (ss >> val) stack_push(stack, val);
         }
-        // если строка начинается с "QUEUE:"
         else if (line.substr(0, 6) == "QUEUE:") {
             stringstream ss(line.substr(6));
-            while (ss >> val) queue_push(queue, val);
+            while (ss >> val) queue_push(que, val);
         }
-        // если строка начинается с "TREE:"
         else if (line.substr(0, 5) == "TREE:") {
             stringstream ss(line.substr(5));
             while (ss >> val) cbt_insert(tree_root, val);
@@ -60,13 +52,12 @@ void storage_load(const string& filename,
     cout << "Loaded from " << filename << endl;
 }
 
-
 void storage_save(const string& filename, 
                   MyArray& arr, 
                   SNode* flist_head, 
                   DNode* dlist_head, 
                   MyStack& stack, 
-                  MyQueue& queue, 
+                  MyQueue& que, 
                   TNode* tree_root) {
     
     ofstream out(filename);
@@ -75,34 +66,28 @@ void storage_save(const string& filename,
         return;
     }
 
-    // Сохраняем Массив
     out << "ARRAY:";
     for (int i = 0; i < arr.size; i++) out << " " << arr.data[i];
     out << "\n";
 
-    // Сохраняем Односвязный список
     out << "SLIST:";
     SNode* c1 = flist_head;
     while (c1) { out << " " << c1->data; c1 = c1->next; }
     out << "\n";
 
-    // Сохраняем Двусвязный список
     out << "DLIST:";
     DNode* c2 = dlist_head;
     while (c2) { out << " " << c2->data; c2 = c2->next; }
     out << "\n";
 
-    // Сохраняем Стек
     out << "STACK:";
     for (int i = 0; i <= stack.top; i++) out << " " << stack.data[i];
     out << "\n";
 
-    // Сохраняем Очередь
     out << "QUEUE:";
-    for (int i = 0; i < queue.count; i++) out << " " << queue.data[(queue.head + i) % queue.cap];
+    for (int i = 0; i < que.count; i++) out << " " << que.data[(que.head + i) % que.cap];
     out << "\n";
 
-    // Сохраняем Дерево 
     out << "TREE:";
     if (tree_root != nullptr) {
         queue<TNode*> q;
